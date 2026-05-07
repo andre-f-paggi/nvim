@@ -1,0 +1,193 @@
+/* Flexoki syntax highlighting — full highlight.css replacement for markdown-preview.nvim
+ * Colors: https://github.com/kepano/flexoki
+ */
+
+:root {
+    --color-text-primary: #282726;
+}
+[data-theme="dark"] {
+    --color-text-primary: #CECDC3;
+}
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  color: var(--color-text-primary);
+  background: #E6E4D9;
+}
+
+[data-theme="dark"] .hljs {
+  background: #1C1B1A;
+}
+
+/* comments */
+.hljs-comment,
+.hljs-quote {
+  color: #878580;
+  font-style: italic;
+}
+
+[data-theme="dark"] .hljs-comment,
+[data-theme="dark"] .hljs-quote {
+  color: #6F6E69;
+}
+
+/* keywords */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #66800B;
+  font-weight: bold;
+}
+
+[data-theme="dark"] .hljs-keyword,
+[data-theme="dark"] .hljs-selector-tag,
+[data-theme="dark"] .hljs-subst {
+  color: #879A39;
+  font-weight: bold;
+}
+
+/* numbers, variables, template vars */
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: #24837B;
+}
+
+[data-theme="dark"] .hljs-number,
+[data-theme="dark"] .hljs-literal,
+[data-theme="dark"] .hljs-variable,
+[data-theme="dark"] .hljs-template-variable,
+[data-theme="dark"] .hljs-tag .hljs-attr {
+  color: #3AA99F;
+}
+
+/* strings */
+.hljs-string,
+.hljs-doctag {
+  color: #BC5215;
+}
+
+[data-theme="dark"] .hljs-string,
+[data-theme="dark"] .hljs-doctag {
+  color: #DA702C;
+}
+
+/* titles / sections */
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+  color: #AF3029;
+  font-weight: bold;
+}
+
+[data-theme="dark"] .hljs-title,
+[data-theme="dark"] .hljs-section,
+[data-theme="dark"] .hljs-selector-id {
+  color: #D14D41;
+  font-weight: bold;
+}
+
+.hljs-subst {
+  font-weight: normal;
+}
+
+/* types / classes */
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #205EA6;
+  font-weight: bold;
+}
+
+[data-theme="dark"] .hljs-type,
+[data-theme="dark"] .hljs-class .hljs-title {
+  color: #4385BE;
+  font-weight: bold;
+}
+
+/* tags / attributes */
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: #5E409D;
+  font-weight: normal;
+}
+
+[data-theme="dark"] .hljs-tag,
+[data-theme="dark"] .hljs-name,
+[data-theme="dark"] .hljs-attribute {
+  color: #8B7EC8;
+  font-weight: normal;
+}
+
+/* regexp / links */
+.hljs-regexp,
+.hljs-link {
+  color: #66800B;
+}
+
+[data-theme="dark"] .hljs-regexp,
+[data-theme="dark"] .hljs-link {
+  color: #879A39;
+}
+
+/* symbols / bullets */
+.hljs-symbol,
+.hljs-bullet {
+  color: #A02F6F;
+}
+
+[data-theme="dark"] .hljs-symbol,
+[data-theme="dark"] .hljs-bullet {
+  color: #CE5D97;
+}
+
+/* builtins */
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #24837B;
+}
+
+[data-theme="dark"] .hljs-built_in,
+[data-theme="dark"] .hljs-builtin-name {
+  color: #3AA99F;
+}
+
+/* meta */
+.hljs-meta {
+  color: #AD8301;
+  font-weight: bold;
+}
+
+[data-theme="dark"] .hljs-meta {
+  color: #D0A215;
+  font-weight: bold;
+}
+
+/* diff */
+.hljs-deletion {
+  background: rgba(175, 48, 41, 0.2);
+}
+
+[data-theme="dark"] .hljs-deletion {
+  background: rgba(209, 77, 65, 0.2);
+}
+
+.hljs-addition {
+  background: rgba(102, 128, 11, 0.2);
+}
+
+[data-theme="dark"] .hljs-addition {
+  background: rgba(135, 154, 57, 0.2);
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}

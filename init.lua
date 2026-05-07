@@ -199,6 +199,12 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+-- Jump to the next capital letter
+vim.keymap.set('n', 'E', '/[A-Z]<CR>', { noremap = true, silent = true })
+
+-- Jump to the previous capital letter
+vim.keymap.set('n', 'B', '?[A-Z]<CR>', { noremap = true, silent = true })
+
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
 -- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
 -- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
@@ -248,7 +254,47 @@ rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
+  {
+    'seblyng/roslyn.nvim',
+    ---@module 'roslyn.config'
+    ---@type RoslynNvimConfig
+    opts = {
+      -- your configuration comes here; leave empty for default settings
+    },
+  },
+  {
+    'ThePrimeagen/harpoon',
+    branch = 'harpoon2',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+  },
+  { 'kepano/flexoki-neovim', name = 'flexoki' },
+  {
+    'iamcco/markdown-preview.nvim',
+    cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+    build = function()
+      local plugin_dir = vim.fn.stdpath('data') .. '/lazy/markdown-preview.nvim'
+      local jsx = plugin_dir .. '/app/pages/index.jsx'
 
+      -- Patch: always show the dark-mode toggle (not just on hover)
+      local content = table.concat(vim.fn.readfile(jsx), '\n')
+      content = content:gsub('themeModeIsVisible: false', 'themeModeIsVisible: true')
+      vim.fn.writefile(vim.split(content, '\n'), jsx)
+
+      -- Install deps then rebuild the Next.js frontend
+      vim.fn.system('cd ' .. plugin_dir .. '/app && yarn install')
+      vim.fn.system(
+        'cd ' .. plugin_dir ..
+        ' && yarn install' ..
+        ' && NODE_OPTIONS=--openssl-legacy-provider yarn build-app'
+      )
+    end,
+    init = function()
+      vim.g.mkdp_filetypes = { 'markdown' }
+      vim.g.mkdp_markdown_css = vim.fn.stdpath('config') .. '/flexoki-markdown.css'
+      vim.g.mkdp_highlight_css = vim.fn.stdpath('config') .. '/flexoki-highlight.css'
+    end,
+    ft = { 'markdown' },
+  },
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
   -- keys can be used to configure plugin behavior/loading/etc.
@@ -786,27 +832,7 @@ require('lazy').setup({
       {
         'L3MON4D3/LuaSnip',
         version = '2.*',
-        build = (function()
-          -- Build Step is needed for regex support in snippets.
-          -- This step is not supported in many windows environments.
-          -- Remove the below condition to re-enable on windows.
-          if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
-            return
-          end
-          return 'make install_jsregexp'
-        end)(),
-        dependencies = {
-          -- `friendly-snippets` contains a variety of premade snippets.
-          --    See the README about individual language/framework/plugin snippets:
-          --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
-        },
-        opts = {},
+        build = 'make install_jsregexp',
       },
       'folke/lazydev.nvim',
     },
@@ -1016,3 +1042,48 @@ require('lazy').setup({
 -- vim: ts=2 sts=2 sw=2 et
 
 require('nvim-treesitter.install').compilers = { 'zig' }
+
+vim.api.nvim_create_autocmd('VimLeave', {
+  pattern = '*',
+  callback = function()
+    vim.cmd [[set guicursor=a:ver100]]
+  end,
+})
+
+vim.o.shell = 'pwsh.exe'
+vim.o.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command $PSStyle.OutputRendering = 'PlainText';"
+vim.o.shellredir = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
+vim.o.shellpipe = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
+vim.o.shellquote = ''
+vim.o.shellxquote = ''
+
+require('mason').setup {
+  registries = {
+    'github:mason-org/mason-registry',
+    'github:Crashdummyy/mason-registry',
+  },
+}
+
+-- Harpoon
+local harpoon = require 'harpoon'
+
+-- REQUIRED
+harpoon:setup()
+-- REQUIRED
+
+vim.keymap.set('n', '<leader>a', function()
+  harpoon:list():add()
+end)
+vim.keymap.set('n', '<C-e>', function()
+  harpoon.ui:toggle_quick_menu(harpoon:list())
+end)
+
+-- Toggle previous & next buffers stored within Harpoon list
+vim.keymap.set('n', '<C-S-P>', function()
+  harpoon:list():prev()
+end)
+vim.keymap.set('n', '<C-S-N>', function()
+  harpoon:list():next()
+end)
+
+vim.cmd [[colorscheme flexoki-dark]]
