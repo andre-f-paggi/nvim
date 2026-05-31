@@ -4,3 +4,7 @@ test.sh
 nvim
 
 spell/
+
+# Vim backup / undo cruft
+*~
+*.un~
