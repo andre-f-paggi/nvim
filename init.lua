@@ -672,6 +672,19 @@ require('lazy').setup({
         end,
       })
 
+      -- Toggle all LSP clients for the current buffer on/off.
+      -- Useful when LSP is too heavy (e.g. Roslyn on large C# solutions).
+      vim.keymap.set('n', '<leader>tL', function()
+        local clients = vim.lsp.get_clients { bufnr = 0 }
+        if #clients > 0 then
+          vim.lsp.stop_client(clients)
+          vim.notify('LSP stopped', vim.log.levels.WARN)
+        else
+          vim.api.nvim_exec_autocmds('FileType', { buf = 0 })
+          vim.notify('LSP started', vim.log.levels.INFO)
+        end
+      end, { desc = 'LSP: [T]oggle [L]SP' })
+
       -- Diagnostic Config
       -- See :help vim.diagnostic.Opts
       vim.diagnostic.config {
