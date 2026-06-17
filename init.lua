@@ -99,9 +99,10 @@ vim.g.have_nerd_font = true
 --  For more options, you can see `:help option-list`
 
 -- Make line numbers default
--- vim.o.number = true
--- You can also add relative line numbers, to help with jumping.
---  Experiment for yourself to see if you like it!
+vim.o.number = true
+-- Add relative line numbers to help with jumping. Combined with `number` above,
+-- this gives hybrid numbers: the current line shows its real (absolute) number,
+-- and every other line shows its distance from the cursor.
 vim.o.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
@@ -199,12 +200,6 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
--- Jump to the next capital letter
-vim.keymap.set('n', 'E', '/[A-Z]<CR>', { noremap = true, silent = true })
-
--- Jump to the previous capital letter
-vim.keymap.set('n', 'B', '?[A-Z]<CR>', { noremap = true, silent = true })
-
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
 -- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
 -- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
@@ -262,12 +257,14 @@ require('lazy').setup({
       -- your configuration comes here; leave empty for default settings
     },
   },
-  {
-    'ThePrimeagen/harpoon',
-    branch = 'harpoon2',
-    dependencies = { 'nvim-lua/plenary.nvim' },
+  { -- Colorscheme. High priority so it applies before other UI plugins load.
+    'kepano/flexoki-neovim',
+    name = 'flexoki',
+    priority = 1000,
+    config = function()
+      vim.cmd.colorscheme 'flexoki-dark'
+    end,
   },
-  { 'kepano/flexoki-neovim', name = 'flexoki' },
   {
     'iamcco/markdown-preview.nvim',
     cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
@@ -393,6 +390,10 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>b', group = '[B]uffer' },
+        { '<leader>d', group = '[D]ebug' },
+        { '<leader>x', group = 'Trouble/Diagnostics' },
+        { '<leader>F', group = '[F]zf-Lua' },
       },
     },
   },
@@ -528,7 +529,16 @@ require('lazy').setup({
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
       -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
-      { 'mason-org/mason.nvim', opts = {} },
+      {
+        'mason-org/mason.nvim',
+        opts = {
+          -- Extra registry providing the `roslyn`/`rzls` packages for roslyn.nvim.
+          registries = {
+            'github:mason-org/mason-registry',
+            'github:Crashdummyy/mason-registry',
+          },
+        },
+      },
       'mason-org/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
@@ -915,28 +925,6 @@ require('lazy').setup({
     },
   },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
-        styles = {
-          comments = { italic = false }, -- Disable italics in comments
-        },
-      }
-
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
-    end,
-  },
-
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
@@ -958,20 +946,9 @@ require('lazy').setup({
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
 
-      -- Simple and easy statusline.
-      --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
-
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
+      -- NOTE: The statusline is provided by lualine instead
+      -- (see lua/custom/plugins/lualine.lua), so mini.statusline is not enabled
+      -- here. mini.ai and mini.surround above are still in use.
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
@@ -1023,7 +1000,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
@@ -1069,34 +1046,3 @@ vim.o.shellredir = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
 vim.o.shellpipe = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
 vim.o.shellquote = ''
 vim.o.shellxquote = ''
-
-require('mason').setup {
-  registries = {
-    'github:mason-org/mason-registry',
-    'github:Crashdummyy/mason-registry',
-  },
-}
-
--- Harpoon
-local harpoon = require 'harpoon'
-
--- REQUIRED
-harpoon:setup()
--- REQUIRED
-
-vim.keymap.set('n', '<leader>a', function()
-  harpoon:list():add()
-end)
-vim.keymap.set('n', '<C-e>', function()
-  harpoon.ui:toggle_quick_menu(harpoon:list())
-end)
-
--- Toggle previous & next buffers stored within Harpoon list
-vim.keymap.set('n', '<C-S-P>', function()
-  harpoon:list():prev()
-end)
-vim.keymap.set('n', '<C-S-N>', function()
-  harpoon:list():next()
-end)
-
-vim.cmd [[colorscheme flexoki-dark]]
