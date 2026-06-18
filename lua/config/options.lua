@@ -1,8 +1,11 @@
 -- [[ Editor options ]]  See `:help vim.o` and `:help option-list`
 
--- Hybrid line numbers: absolute on the current line, relative elsewhere.
+-- Line numbers: show BOTH the absolute number and the relative distance on
+-- every line via a custom gutter. (number/relativenumber stay on so v:lnum and
+-- v:relnum behave as expected.)
 vim.o.number = true
 vim.o.relativenumber = true
+vim.opt.statuscolumn = '%s %{v:lnum} %=%{v:relnum} '
 
 -- Enable mouse mode (handy for resizing splits).
 vim.o.mouse = 'a'
