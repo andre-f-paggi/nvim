@@ -1,5 +1,5 @@
 -- Harpoon (harpoon2): pin a few files and jump between them instantly.
--- Moved here from the bottom of init.lua so it's a proper, self-contained plugin spec.
+-- Grouped under <leader>h (Harpoon); fast jumps stay on <leader>1-4.
 return {
   'ThePrimeagen/harpoon',
   branch = 'harpoon2',
@@ -8,30 +8,27 @@ return {
     local harpoon = require 'harpoon'
     harpoon:setup()
 
-    vim.keymap.set('n', '<leader>a', function()
+    vim.keymap.set('n', '<leader>ha', function()
       harpoon:list():add()
-    end, { desc = 'Harpoon: [A]dd file' })
+    end, { desc = 'Harpoon: [a]dd file' })
 
-    -- Toggle menu moved off <C-e> (which is the default "scroll down one line").
-    vim.keymap.set('n', '<leader>e', function()
+    vim.keymap.set('n', '<leader>hm', function()
       harpoon.ui:toggle_quick_menu(harpoon:list())
-    end, { desc = 'Harpoon: toggle menu' })
+    end, { desc = 'Harpoon: [m]enu' })
 
-    -- Jump straight to harpooned files 1-4 (reliable keycodes in every terminal).
+    vim.keymap.set('n', '<leader>hn', function()
+      harpoon:list():next()
+    end, { desc = 'Harpoon: [n]ext' })
+
+    vim.keymap.set('n', '<leader>hp', function()
+      harpoon:list():prev()
+    end, { desc = 'Harpoon: [p]revious' })
+
+    -- Fast jumps to harpooned files 1-4 (kept top-level for speed).
     for i = 1, 4 do
       vim.keymap.set('n', '<leader>' .. i, function()
         harpoon:list():select(i)
       end, { desc = 'Harpoon: file ' .. i })
     end
-
-    -- Cycle through the list (replaces the old <C-S-P>/<C-S-N> maps, which many
-    -- terminals can't send as distinct keycodes).
-    vim.keymap.set('n', '<leader>p', function()
-      harpoon:list():prev()
-    end, { desc = 'Harpoon: previous' })
-
-    vim.keymap.set('n', '<leader>n', function()
-      harpoon:list():next()
-    end, { desc = 'Harpoon: next' })
   end,
 }
