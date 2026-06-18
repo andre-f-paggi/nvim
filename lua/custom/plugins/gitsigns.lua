@@ -1,6 +1,7 @@
 -- Git change signs in the gutter (+ / ~ / _) plus hunk actions.
 -- Keymaps are buffer-local (only active in git-tracked files) and grouped under
--- <leader>g (Git) and <leader>t (Toggle). See `:help gitsigns`.
+-- <leader>g (Git) and <leader>t (Toggle). All lowercase — no Shift needed.
+-- See `:help gitsigns`.
 return {
   'lewis6991/gitsigns.nvim',
   opts = {
@@ -46,18 +47,18 @@ return {
       end, { desc = 'git [r]eset selection' })
       map('n', '<leader>gs', gitsigns.stage_hunk, { desc = 'git [s]tage hunk' })
       map('n', '<leader>gr', gitsigns.reset_hunk, { desc = 'git [r]eset hunk' })
-      map('n', '<leader>gS', gitsigns.stage_buffer, { desc = 'git [S]tage buffer' })
-      map('n', '<leader>gR', gitsigns.reset_buffer, { desc = 'git [R]eset buffer' })
+      map('n', '<leader>ga', gitsigns.stage_buffer, { desc = 'git st[a]ge buffer' })
+      map('n', '<leader>gx', gitsigns.reset_buffer, { desc = 'git reset buffer (discard)' })
       map('n', '<leader>gp', gitsigns.preview_hunk, { desc = 'git [p]review hunk' })
       map('n', '<leader>gb', gitsigns.blame_line, { desc = 'git [b]lame line' })
       map('n', '<leader>gd', gitsigns.diffthis, { desc = 'git [d]iff against index' })
-      map('n', '<leader>gD', function()
+      map('n', '<leader>gl', function()
         gitsigns.diffthis '@'
-      end, { desc = 'git [D]iff against last commit' })
+      end, { desc = 'git diff against [l]ast commit' })
 
       -- Toggles ([T]oggle)
       map('n', '<leader>tb', '<cmd>Gitsigns toggle_current_line_blame<cr>', { desc = '[T]oggle git [b]lame line' })
-      map('n', '<leader>tD', '<cmd>Gitsigns toggle_deleted<cr>', { desc = '[T]oggle git show [D]eleted' })
+      map('n', '<leader>td', '<cmd>Gitsigns toggle_deleted<cr>', { desc = '[T]oggle git show [d]eleted' })
     end,
   },
 }

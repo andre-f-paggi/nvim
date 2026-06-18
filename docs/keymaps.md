@@ -1,6 +1,7 @@
 # Keymaps reference
 
-`<leader>` is **Space**. Three ways to discover keymaps live:
+`<leader>` is **Space**. All leader shortcuts are **lowercase** (no Shift). Three
+ways to discover keymaps live:
 
 - Press **`<leader>`** and wait → the which-key menu shows the categories below.
 - **`<leader>?`** → show *every* mapping (which-key full list).
@@ -11,15 +12,15 @@ The leader menu is organized into these categories (defined once in
 
 | Prefix | Category | Plugin |
 |---|---|---|
-| `<leader>s` | [S]earch | Telescope |
-| `<leader>F` | [F]ind | fzf-lua |
-| `<leader>g` | [G]it | gitsigns |
-| `<leader>h` | [H]arpoon | harpoon |
-| `<leader>b` | [B]uffer | bufferline |
-| `<leader>d` | [D]ebug | nvim-dap |
+| `<leader>s` | Search | Telescope |
+| `<leader>z` | Find (fuzzy) | fzf-lua |
+| `<leader>g` | Git | gitsigns |
+| `<leader>h` | Harpoon | harpoon |
+| `<leader>b` | Buffer | bufferline |
+| `<leader>d` | Debug | nvim-dap |
 | `<leader>x` | Diagnostics | trouble |
-| `<leader>t` | [T]oggle | (mixed) |
-| `gr` | [G]oto / LSP | nvim-lspconfig |
+| `<leader>t` | Toggle | (mixed) |
+| `gr` | Goto / LSP | nvim-lspconfig |
 
 ---
 
@@ -40,15 +41,15 @@ The leader menu is organized into these categories (defined once in
 | `<leader>/` | Fuzzy-find in current buffer |
 | `<leader><leader>` | Open buffers |
 
-## Find — fzf-lua (`<leader>F`)
+## Find — fzf-lua (`<leader>z` = fuzzy)
 | Key | Action |
 |---|---|
-| `<leader>Ff` | Files |
-| `<leader>Fg` | Live grep |
-| `<leader>Fb` | Buffers |
-| `<leader>Fw` | Word under cursor |
-| `<leader>Fh` | Help tags |
-| `<leader>Fr` | Resume |
+| `<leader>zf` | Files |
+| `<leader>zg` | Live grep |
+| `<leader>zb` | Buffers |
+| `<leader>zw` | Word under cursor |
+| `<leader>zh` | Help tags |
+| `<leader>zr` | Resume |
 
 ## Git — gitsigns (`<leader>g`, `]c` / `[c`)
 *Active in git-tracked files.*
@@ -57,12 +58,12 @@ The leader menu is organized into these categories (defined once in
 | `]c` / `[c` | Next / previous change |
 | `<leader>gs` | Stage hunk (or selection in Visual) |
 | `<leader>gr` | Reset hunk (or selection in Visual) |
-| `<leader>gS` | Stage buffer |
-| `<leader>gR` | Reset buffer |
+| `<leader>ga` | Stage buffer (all) |
+| `<leader>gx` | Reset buffer (discard all) |
 | `<leader>gp` | Preview hunk |
 | `<leader>gb` | Blame line |
 | `<leader>gd` | Diff against index |
-| `<leader>gD` | Diff against last commit |
+| `<leader>gl` | Diff against last commit |
 
 ## Harpoon (`<leader>h`, `<leader>1`–`<leader>4`)
 | Key | Action |
@@ -86,7 +87,7 @@ The leader menu is organized into these categories (defined once in
 | `<F5>` | Start / continue |
 | `<F1>` / `<F2>` / `<F3>` | Step into / over / out |
 | `<leader>db` | Toggle breakpoint |
-| `<leader>dB` | Conditional breakpoint |
+| `<leader>dc` | Conditional breakpoint |
 | `<leader>du` | Toggle debugger UI |
 | `<leader>dr` | Toggle REPL |
 
@@ -94,19 +95,19 @@ The leader menu is organized into these categories (defined once in
 | Key | Action |
 |---|---|
 | `<leader>xx` | Workspace diagnostics |
-| `<leader>xX` | Buffer diagnostics |
+| `<leader>xb` | Buffer diagnostics |
 | `<leader>xs` | Symbols |
-| `<leader>xl` | LSP defs / refs |
-| `<leader>xL` | Location list |
-| `<leader>xQ` | Quickfix list |
+| `<leader>xr` | LSP defs / refs |
+| `<leader>xl` | Location list |
+| `<leader>xq` | Quickfix list |
 
 ## Toggle (`<leader>t`)
 | Key | Action |
 |---|---|
 | `<leader>tb` | Git blame line |
-| `<leader>tD` | Git show deleted |
+| `<leader>td` | Git show deleted |
 | `<leader>th` | LSP inlay hints |
-| `<leader>tL` | LSP on/off (this buffer) |
+| `<leader>tl` | LSP on/off (this buffer) |
 | `<leader>tc` | Treesitter context (sticky header) |
 
 ## Code & LSP
@@ -117,11 +118,11 @@ The leader menu is organized into these categories (defined once in
 | `grn` | Rename symbol | LSP |
 | `gra` | Code action (normal/visual) | LSP |
 | `grr` | References | LSP |
-| `grd` / `grD` | Definition / Declaration | LSP |
+| `grd` / `grc` | Definition / Declaration | LSP |
 | `gri` | Implementation | LSP |
 | `grt` | Type definition | LSP |
-| `gO` / `gW` | Document / Workspace symbols | LSP |
-| `K` | Hover docs | LSP (built-in) |
+| `grs` / `grw` | Document / Workspace symbols | LSP |
+| `K` | Hover docs | LSP (built-in; Shift is unavoidable here) |
 
 ## Editing — Comment, mini, completion
 | Key | Action | Source |
@@ -143,3 +144,6 @@ The leader menu is organized into these categories (defined once in
 | `<C-h/j/k/l>` | Move focus between splits |
 | `<Esc>` | Clear search highlight |
 | `<Esc><Esc>` | Exit terminal mode (in `:terminal`) |
+
+> Note: `K` (hover) and `<C-…>` completion keys use Shift/Ctrl by Vim convention
+> and are left as-is. Everything under `<leader>` is lowercase.

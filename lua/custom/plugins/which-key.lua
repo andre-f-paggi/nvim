@@ -54,7 +54,7 @@ return {
     -- [[ Leader-menu categories ]] — one group per plugin / concern.
     spec = {
       { '<leader>s', group = '[S]earch (Telescope)' },
-      { '<leader>F', group = '[F]ind (fzf-lua)' },
+      { '<leader>z', group = 'Find (fzf-lua)' },
       { '<leader>g', group = '[G]it', mode = { 'n', 'v' } },
       { '<leader>h', group = '[H]arpoon' },
       { '<leader>b', group = '[B]uffer' },
