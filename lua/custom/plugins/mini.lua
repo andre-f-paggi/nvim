@@ -30,5 +30,10 @@ return {
     --       sd'   surround [D]elete [']quotes
     --       sr)'  surround [R]eplace [)] with [']
     require('mini.surround').setup()
+
+    -- Smart buffer delete used by the bufferline close mappings: switches the
+    -- window to another buffer before deleting, so closing a buffer never
+    -- closes the window (or Neovim). See custom/plugins/bufferline.lua.
+    require('mini.bufremove').setup()
   end,
 }

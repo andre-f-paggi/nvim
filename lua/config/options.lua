@@ -35,7 +35,7 @@ vim.o.splitbelow = true
 
 -- Show whitespace characters.
 vim.o.list = true
-vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+vim.opt.listchars = { tab = '⇤–⇥', trail = '·', nbsp = 'x', space = '·', precedes = '⇠', extends = '⇢' }
 
 vim.o.inccommand = 'split' -- live preview of :substitute
 vim.o.cursorline = true -- highlight the current line

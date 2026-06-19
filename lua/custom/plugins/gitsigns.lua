@@ -1,6 +1,6 @@
 -- Git change signs in the gutter (+ / ~ / _) plus hunk actions.
 -- Keymaps are buffer-local (only active in git-tracked files) and grouped under
--- <leader>g (Git) and <leader>t (Toggle). All lowercase — no Shift needed.
+-- <leader>g (Git) and <leader>u (UI/Toggle). All lowercase — no Shift needed.
 -- See `:help gitsigns`.
 return {
   'lewis6991/gitsigns.nvim',
@@ -56,9 +56,9 @@ return {
         gitsigns.diffthis '@'
       end, { desc = 'git diff against [l]ast commit' })
 
-      -- Toggles ([T]oggle)
-      map('n', '<leader>tb', '<cmd>Gitsigns toggle_current_line_blame<cr>', { desc = '[T]oggle git [b]lame line' })
-      map('n', '<leader>td', '<cmd>Gitsigns toggle_deleted<cr>', { desc = '[T]oggle git show [d]eleted' })
+      -- Toggles (UI/Toggle group)
+      map('n', '<leader>ub', '<cmd>Gitsigns toggle_current_line_blame<cr>', { desc = 'Toggle git [b]lame line' })
+      map('n', '<leader>ud', '<cmd>Gitsigns toggle_deleted<cr>', { desc = 'Toggle git show [d]eleted' })
     end,
   },
 }

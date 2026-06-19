@@ -1,6 +1,42 @@
 -- Coding-motions cheatsheet: a floating "menu" of the most useful selection and
 -- editing motions for coding. Open it with <leader>m or :Cheatsheet.
+-- The generic float renderer (M.open_float) is shared with the keybinds
+-- cheatsheet in config/keymap-cheatsheet.lua.
 local M = {}
+
+-- Render a list of display lines in a centred, scrollable floating window.
+-- Reused by both cheatsheets so the look/behaviour stays consistent.
+function M.open_float(lines, title)
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  vim.bo[buf].modifiable = false
+  vim.bo[buf].bufhidden = 'wipe'
+
+  local width = 0
+  for _, line in ipairs(lines) do
+    width = math.max(width, vim.fn.strdisplaywidth(line))
+  end
+  width = math.min(width + 2, vim.o.columns - 4)
+  local height = math.min(#lines, vim.o.lines - 4)
+
+  local win = vim.api.nvim_open_win(buf, true, {
+    relative = 'editor',
+    width = width,
+    height = height,
+    row = math.floor((vim.o.lines - height) / 2 - 1),
+    col = math.floor((vim.o.columns - width) / 2),
+    style = 'minimal',
+    border = 'rounded',
+    title = title,
+    title_pos = 'center',
+  })
+  vim.wo[win].cursorline = true
+
+  -- Close with q or <Esc>.
+  for _, key in ipairs { 'q', '<Esc>' } do
+    vim.keymap.set('n', key, '<cmd>close<cr>', { buffer = buf, nowait = true, silent = true })
+  end
+end
 
 M.lines = {
   ' Coding motions — common selections & edits          (q / <Esc> to close)',
@@ -37,39 +73,11 @@ M.lines = {
   '   gc{motion}   toggle motion        grd     go to definition',
   '   gc (visual)  toggle selection     grr     references',
   '',
-  ' Tip: press <leader> for the keybinding menu, or <leader>? for every mapping.',
+  ' Tip: <leader>k = keybinds / plugin cheatsheet · <leader>? = every mapping.',
 }
 
 function M.open()
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, M.lines)
-  vim.bo[buf].modifiable = false
-  vim.bo[buf].bufhidden = 'wipe'
-
-  local width = 0
-  for _, line in ipairs(M.lines) do
-    width = math.max(width, vim.fn.strdisplaywidth(line))
-  end
-  width = math.min(width + 2, vim.o.columns - 4)
-  local height = math.min(#M.lines, vim.o.lines - 4)
-
-  local win = vim.api.nvim_open_win(buf, true, {
-    relative = 'editor',
-    width = width,
-    height = height,
-    row = math.floor((vim.o.lines - height) / 2 - 1),
-    col = math.floor((vim.o.columns - width) / 2),
-    style = 'minimal',
-    border = 'rounded',
-    title = ' Coding motions ',
-    title_pos = 'center',
-  })
-  vim.wo[win].cursorline = true
-
-  -- Close with q or <Esc>.
-  for _, key in ipairs { 'q', '<Esc>' } do
-    vim.keymap.set('n', key, '<cmd>close<cr>', { buffer = buf, nowait = true, silent = true })
-  end
+  M.open_float(M.lines, ' Coding motions ')
 end
 
 vim.api.nvim_create_user_command('Cheatsheet', M.open, { desc = 'Coding motions cheatsheet' })

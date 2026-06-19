@@ -50,16 +50,16 @@ return {
         map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
 
         -- Find references for the word under your cursor.
-        map('grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+        map('grr', require('fzf-lua').lsp_references, '[G]oto [R]eferences')
 
         -- Jump to the implementation of the word under your cursor.
         --  Useful when your language has ways of declaring types without an actual implementation.
-        map('gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+        map('gri', require('fzf-lua').lsp_implementations, '[G]oto [I]mplementation')
 
         -- Jump to the definition of the word under your cursor.
         --  This is where a variable was first declared, or where a function is defined, etc.
         --  To jump back, press <C-t>.
-        map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+        map('grd', require('fzf-lua').lsp_definitions, '[G]oto [D]efinition')
 
         -- WARN: This is not Goto Definition, this is Goto Declaration.
         --  For example, in C this would take you to the header.
@@ -67,16 +67,16 @@ return {
 
         -- Fuzzy find all the symbols in your current document.
         --  Symbols are things like variables, functions, types, etc.
-        map('grs', require('telescope.builtin').lsp_document_symbols, 'Document [s]ymbols')
+        map('grs', require('fzf-lua').lsp_document_symbols, 'Document [s]ymbols')
 
         -- Fuzzy find all the symbols in your current workspace.
         --  Similar to document symbols, except searches over your entire project.
-        map('grw', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[w]orkspace Symbols')
+        map('grw', require('fzf-lua').lsp_live_workspace_symbols, '[w]orkspace Symbols')
 
         -- Jump to the type of the word under your cursor.
         --  Useful when you're not sure what type a variable is and you want to see
         --  the definition of its *type*, not where it was *defined*.
-        map('grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
+        map('grt', require('fzf-lua').lsp_typedefs, '[G]oto [T]ype Definition')
 
         -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
         ---@param client vim.lsp.Client
@@ -125,16 +125,16 @@ return {
         --
         -- This may be unwanted, since they displace some of your code
         if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
-          map('<leader>th', function()
+          map('<leader>uh', function()
             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
-          end, '[T]oggle Inlay [H]ints')
+          end, 'Toggle Inlay [H]ints')
         end
       end,
     })
 
     -- Toggle all LSP clients for the current buffer on/off.
     -- Useful when LSP is too heavy (e.g. Roslyn on large C# solutions).
-    vim.keymap.set('n', '<leader>tl', function()
+    vim.keymap.set('n', '<leader>ul', function()
       local clients = vim.lsp.get_clients { bufnr = 0 }
       if #clients > 0 then
         vim.lsp.stop_client(clients)
@@ -143,7 +143,7 @@ return {
         vim.api.nvim_exec_autocmds('FileType', { buf = 0 })
         vim.notify('LSP started', vim.log.levels.INFO)
       end
-    end, { desc = 'LSP: [t]oggle [l]sp (this buffer)' })
+    end, { desc = 'Toggle [l]sp (this buffer)' })
 
     -- Diagnostic Config
     -- See :help vim.diagnostic.Opts
