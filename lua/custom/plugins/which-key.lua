@@ -1,10 +1,18 @@
 -- Shows a popup of possible follow-up keys after you start a keybinding.
+-- The `spec` below is the single source of truth for the leader-menu CATEGORIES;
+-- each individual mapping's label lives with its plugin (its `desc`).
 return {
   'folke/which-key.nvim',
   event = 'VimEnter',
+  keys = {
+    {
+      '<leader>?',
+      '<cmd>WhichKey<cr>',
+      desc = 'Show all keymaps (which-key)',
+    },
+  },
   opts = {
     -- delay between pressing a key and opening which-key (milliseconds)
-    -- this setting is independent of vim.o.timeoutlen
     delay = 0,
     icons = {
       -- set icon mappings to true if you have a Nerd Font
@@ -43,15 +51,18 @@ return {
       },
     },
 
-    -- Document existing key chains
+    -- [[ Leader-menu categories ]] — one group per plugin / concern.
     spec = {
-      { '<leader>s', group = '[S]earch' },
-      { '<leader>t', group = '[T]oggle' },
-      { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+      { '<leader>s', group = '[S]earch (Telescope)' },
+      { '<leader>z', group = 'Find (fzf-lua)' },
+      { '<leader>g', group = '[G]it', mode = { 'n', 'v' } },
+      { '<leader>h', group = '[H]arpoon' },
       { '<leader>b', group = '[B]uffer' },
       { '<leader>d', group = '[D]ebug' },
-      { '<leader>x', group = 'Trouble/Diagnostics' },
-      { '<leader>F', group = '[F]zf-Lua' },
+      { '<leader>x', group = '[X] Diagnostics (Trouble)' },
+      { '<leader>t', group = '[T]oggle' },
+      -- Buffer-local LSP actions (active when a language server attaches).
+      { 'gr', group = '[G]oto / LSP', mode = { 'n', 'x' } },
     },
   },
 }
