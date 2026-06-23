@@ -1,16 +1,16 @@
--- Autoformatting via external formatters (stylua, prettier, ...). <leader>f to format.
+-- Autoformatting via external formatters (stylua, prettier, ...). <leader>cf to format.
 return {
   'stevearc/conform.nvim',
   event = { 'BufWritePre' },
   cmd = { 'ConformInfo' },
   keys = {
     {
-      '<leader>f',
+      '<leader>cf',
       function()
         require('conform').format { async = true, lsp_format = 'fallback' }
       end,
       mode = '',
-      desc = '[F]ormat buffer',
+      desc = 'Code: [f]ormat buffer',
     },
   },
   opts = {

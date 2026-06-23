@@ -1,19 +1,46 @@
--- fzf-powered fuzzy finder (alternative to Telescope; faster on huge repos).
--- Mapped under <leader>z (z = "fuzzy") so no Shift is needed and it doesn't
--- clash with Telescope (<leader>s) or format (<leader>f).
--- Requires the `fzf` binary on PATH (e.g. `winget install junegunn.fzf`) and
--- ripgrep for live_grep.
+-- fzf-lua: THE fuzzy finder for this config (files, grep, LSP pickers, ui-select).
+-- Replaces Telescope. Requires the `fzf` binary on PATH
+-- (e.g. `winget install junegunn.fzf`) and ripgrep for live grep.
+--
+-- Layout follows the LazyVim/AstroNvim convention:
+--   <leader>f … find FILES        <leader>s … SEARCH content
+-- All mappings are lowercase — no Shift needed.
 return {
   'ibhagwan/fzf-lua',
   dependencies = { 'nvim-tree/nvim-web-devicons' },
   cmd = 'FzfLua',
-  opts = {},
   keys = {
-    { '<leader>zf', '<cmd>FzfLua files<cr>', desc = 'Fzf: Files' },
-    { '<leader>zg', '<cmd>FzfLua live_grep<cr>', desc = 'Fzf: Live grep' },
-    { '<leader>zb', '<cmd>FzfLua buffers<cr>', desc = 'Fzf: Buffers' },
-    { '<leader>zw', '<cmd>FzfLua grep_cword<cr>', desc = 'Fzf: Word under cursor' },
-    { '<leader>zh', '<cmd>FzfLua helptags<cr>', desc = 'Fzf: Help tags' },
-    { '<leader>zr', '<cmd>FzfLua resume<cr>', desc = 'Fzf: Resume last search' },
+    -- Find (files)
+    { '<leader>ff', '<cmd>FzfLua files<cr>', desc = 'Find: files' },
+    { '<leader>fr', '<cmd>FzfLua oldfiles<cr>', desc = 'Find: recent files' },
+    { '<leader>fb', '<cmd>FzfLua buffers<cr>', desc = 'Find: buffers' },
+    {
+      '<leader>fn',
+      function()
+        require('fzf-lua').files { cwd = vim.fn.stdpath 'config' }
+      end,
+      desc = 'Find: Neovim config files',
+    },
+
+    -- Search (content)
+    { '<leader>sg', '<cmd>FzfLua live_grep<cr>', desc = 'Search: grep (live)' },
+    { '<leader>sw', '<cmd>FzfLua grep_cword<cr>', desc = 'Search: word under cursor' },
+    { '<leader>sd', '<cmd>FzfLua diagnostics_document<cr>', desc = 'Search: diagnostics (buffer)' },
+    { '<leader>sh', '<cmd>FzfLua helptags<cr>', desc = 'Search: help tags' },
+    { '<leader>sk', '<cmd>FzfLua keymaps<cr>', desc = 'Search: keymaps' },
+    { '<leader>sr', '<cmd>FzfLua resume<cr>', desc = 'Search: resume last picker' },
+    { '<leader>ss', '<cmd>FzfLua lsp_document_symbols<cr>', desc = 'Search: document symbols' },
+    { '<leader>s/', '<cmd>FzfLua lines<cr>', desc = 'Search: lines in open buffers' },
+
+    -- Fuzzy-search the lines of the current buffer.
+    { '<leader>/', '<cmd>FzfLua lgrep_curbuf<cr>', desc = 'Search in current buffer' },
   },
+  opts = {},
+  config = function(_, opts)
+    local fzf = require 'fzf-lua'
+    fzf.setup(opts)
+    -- Route vim.ui.select (e.g. LSP code-action menus) through fzf-lua,
+    -- replacing what telescope-ui-select used to do.
+    fzf.register_ui_select()
+  end,
 }

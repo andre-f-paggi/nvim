@@ -51,18 +51,20 @@ return {
       },
     },
 
-    -- [[ Leader-menu categories ]] — one group per plugin / concern.
+    -- [[ Leader-menu categories ]] — one group per concern. Lowercase only.
     spec = {
-      { '<leader>s', group = '[S]earch (Telescope)' },
-      { '<leader>z', group = 'Find (fzf-lua)' },
-      { '<leader>g', group = '[G]it', mode = { 'n', 'v' } },
-      { '<leader>h', group = '[H]arpoon' },
-      { '<leader>b', group = '[B]uffer' },
-      { '<leader>d', group = '[D]ebug' },
-      { '<leader>x', group = '[X] Diagnostics (Trouble)' },
-      { '<leader>t', group = '[T]oggle' },
+      { '<leader>f', group = 'Find (files)' },
+      { '<leader>s', group = 'Search' },
+      { '<leader>c', group = 'Code' },
+      { '<leader>g', group = 'Git', mode = { 'n', 'v' } },
+      { '<leader>h', group = 'Harpoon' },
+      { '<leader>b', group = 'Buffer' },
+      { '<leader>t', group = 'Tabline (bufferline)' },
+      { '<leader>d', group = 'Debug' },
+      { '<leader>x', group = 'Trouble / Diagnostics' },
+      { '<leader>u', group = 'UI / Toggle' },
       -- Buffer-local LSP actions (active when a language server attaches).
-      { 'gr', group = '[G]oto / LSP', mode = { 'n', 'x' } },
+      { 'gr', group = 'Goto / LSP', mode = { 'n', 'x' } },
     },
   },
 }

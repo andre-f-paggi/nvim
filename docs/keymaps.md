@@ -1,11 +1,12 @@
 # Keymaps reference
 
-`<leader>` is **Space**. All leader shortcuts are **lowercase** (no Shift). Three
-ways to discover keymaps live:
+`<leader>` is **Space**. All leader shortcuts are **lowercase** (no Shift). Ways to
+discover keymaps live:
 
 - Press **`<leader>`** and wait → the which-key menu shows the categories below.
 - **`<leader>?`** → show *every* mapping (which-key full list).
 - **`<leader>sk`** → fuzzy-search keymaps (Telescope).
+- **`<leader>m`** → coding-motions cheatsheet (selecting functions, brackets, …).
 
 The leader menu is organized into these categories (defined once in
 `lua/custom/plugins/which-key.lua`):

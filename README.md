@@ -1,241 +1,333 @@
-# kickstart.nvim
+# nvim
 
-## Introduction
+My personal Neovim configuration. It started as a fork of
+[kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim) and has since been
+split into focused modules, retargeted at a **Windows-first, C#/.NET** workflow,
+and switched to [fzf-lua](https://github.com/ibhagwan/fzf-lua) as the single
+fuzzy finder.
 
-A starting point for Neovim that is:
+> It lives standalone in this repo and is also vendored as the `nvim` submodule
+> of my [dotfiles](https://github.com/andre-f-paggi/dotfiles).
 
-* Small
-* Single-file
-* Completely Documented
+## Highlights
 
-**NOT** a Neovim distribution, but instead a starting point for your configuration.
+- **Modular** — `init.lua` only sets the leader keys, then loads small files
+  under `lua/config/` (settings) and `lua/custom/plugins/` (one file per plugin).
+- **[lazy.nvim](https://lazy.folke.io/)** plugin manager — self-bootstrapping,
+  versions pinned in `lazy-lock.json`.
+- **LSP + completion out of the box** — `nvim-lspconfig` + Mason, `blink.cmp`
+  completion, `conform.nvim` formatting, with first-class **C#/.NET** support
+  (`roslyn.nvim` + `netcoredbg` debugging).
+- **fzf-lua** for files / live-grep / LSP pickers (no Telescope).
+- **Discoverable keymaps** — which-key popups plus two built-in floating
+  cheatsheets (`<leader>k` and `<leader>m`).
+- **Windows-friendly** — PowerShell 7 as the shell, `zig` as the Treesitter
+  compiler, and Windows-specific build workarounds baked in.
+- [flexoki](https://github.com/kepano/flexoki-neovim) (`flexoki-dark`) theme +
+  `lualine` statusline + `bufferline` tabs.
 
-## Installation
+---
 
-### Install Neovim
+## Requirements
 
-Kickstart.nvim targets *only* the latest
-['stable'](https://github.com/neovim/neovim/releases/tag/stable) and latest
-['nightly'](https://github.com/neovim/neovim/releases/tag/nightly) of Neovim.
-If you are experiencing issues, please make sure you have the latest versions.
+| Need | Why | Install (Windows) |
+|---|---|---|
+| **Neovim** (latest stable) | the editor | `winget install Neovim.Neovim` |
+| **git** | lazy.nvim + plugin clones | `winget install Git.Git` |
+| **PowerShell 7** (`pwsh`) | `:terminal` and `:!` are wired to `pwsh.exe` | `winget install Microsoft.PowerShell` |
+| **zig** | C compiler used to build Treesitter parsers | `winget install zig.zig` |
+| **ripgrep** | fzf-lua live grep | `winget install BurntSushi.ripgrep.MSVC` |
+| **fzf** binary | the fzf-lua picker engine | `winget install junegunn.fzf` |
+| **A Nerd Font** | icons (`vim.g.have_nerd_font = true`) | [nerdfonts.com](https://www.nerdfonts.com/) |
+| **fd** *(optional)* | faster file listing | `winget install sharkdp.fd` |
 
-### Install External Dependencies
+Per-language toolchains are pulled in as needed — e.g. the **.NET SDK** for C#
+(`roslyn` + `netcoredbg`), `node`/`npm` for TypeScript, `go` for Go, etc.
 
-External Requirements:
-- Basic utils: `git`, `make`, `unzip`, C Compiler (`gcc`)
-- [ripgrep](https://github.com/BurntSushi/ripgrep#installation),
-  [fd-find](https://github.com/sharkdp/fd#installation)
-- Clipboard tool (xclip/xsel/win32yank or other depending on the platform)
-- A [Nerd Font](https://www.nerdfonts.com/): optional, provides various icons
-  - if you have it set `vim.g.have_nerd_font` in `init.lua` to true
-- Emoji fonts (Ubuntu only, and only if you want emoji!) `sudo apt install fonts-noto-color-emoji`
-- Language Setup:
-  - If you want to write Typescript, you need `npm`
-  - If you want to write Golang, you will need `go`
-  - etc.
+On Linux/macOS the equivalents are `neovim`, `git`, `ripgrep`, `fzf`, `fd`, a C
+compiler (`gcc`/`clang` — `zig` is optional there), and a clipboard tool
+(`xclip`/`xsel`/`wl-clipboard`). Clipboard sync uses `unnamedplus`; on Windows
+`win32yank` (shipped with Neovim) handles it.
 
-> [!NOTE]
-> See [Install Recipes](#Install-Recipes) for additional Windows and Linux specific notes
-> and quick install snippets
+---
 
-### Install Kickstart
+## Install
 
-> [!NOTE]
-> [Backup](#FAQ) your previous configuration (if any exists)
+Neovim loads its config from a single directory. Back up anything already there
+first.
 
-Neovim's configurations are located under the following paths, depending on your OS:
+| OS | Config path |
+|---|---|
+| Windows | `%LOCALAPPDATA%\nvim` |
+| Linux / macOS | `${XDG_CONFIG_HOME:-~/.config}/nvim` |
 
-| OS | PATH |
-| :- | :--- |
-| Linux, MacOS | `$XDG_CONFIG_HOME/nvim`, `~/.config/nvim` |
-| Windows (cmd)| `%localappdata%\nvim\` |
-| Windows (powershell)| `$env:LOCALAPPDATA\nvim\` |
+<details><summary><b>Windows (PowerShell)</b></summary>
 
-#### Recommended Step
+```powershell
+# back up an existing config if you have one
+Move-Item "$env:LOCALAPPDATA\nvim" "$env:LOCALAPPDATA\nvim.bak" -ErrorAction SilentlyContinue
 
-[Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repo
-so that you have your own copy that you can modify, then install by cloning the
-fork to your machine using one of the commands below, depending on your OS.
-
-> [!NOTE]
-> Your fork's URL will be something like this:
-> `https://github.com/<your_github_username>/kickstart.nvim.git`
-
-You likely want to remove `lazy-lock.json` from your fork's `.gitignore` file
-too - it's ignored in the kickstart repo to make maintenance easier, but it's
-[recommended to track it in version control](https://lazy.folke.io/usage/lockfile).
-
-#### Clone kickstart.nvim
-
-> [!NOTE]
-> If following the recommended step above (i.e., forking the repo), replace
-> `nvim-lua` with `<your_github_username>` in the commands below
-
-<details><summary> Linux and Mac </summary>
-
-```sh
-git clone https://github.com/nvim-lua/kickstart.nvim.git "${XDG_CONFIG_HOME:-$HOME/.config}"/nvim
-```
-
-</details>
-
-<details><summary> Windows </summary>
-
-If you're using `cmd.exe`:
-
-```
-git clone https://github.com/nvim-lua/kickstart.nvim.git "%localappdata%\nvim"
-```
-
-If you're using `powershell.exe`
-
-```
-git clone https://github.com/nvim-lua/kickstart.nvim.git "${env:LOCALAPPDATA}\nvim"
-```
-
-</details>
-
-### Post Installation
-
-Start Neovim
-
-```sh
+git clone https://github.com/andre-f-paggi/nvim "$env:LOCALAPPDATA\nvim"
 nvim
 ```
-
-That's it! Lazy will install all the plugins you have. Use `:Lazy` to view
-the current plugin status. Hit `q` to close the window.
-
-#### Read The Friendly Documentation
-
-Read through the `init.lua` file in your configuration folder for more
-information about extending and exploring Neovim. That also includes
-examples of adding popularly requested plugins.
-
-> [!NOTE]
-> For more information about a particular plugin check its repository's documentation.
-
-
-### Getting Started
-
-[The Only Video You Need to Get Started with Neovim](https://youtu.be/m8C0Cq9Uv9o)
-
-### FAQ
-
-* What should I do if I already have a pre-existing Neovim configuration?
-  * You should back it up and then delete all associated files.
-  * This includes your existing init.lua and the Neovim files in `~/.local`
-    which can be deleted with `rm -rf ~/.local/share/nvim/`
-* Can I keep my existing configuration in parallel to kickstart?
-  * Yes! You can use [NVIM_APPNAME](https://neovim.io/doc/user/starting.html#%24NVIM_APPNAME)`=nvim-NAME`
-    to maintain multiple configurations. For example, you can install the kickstart
-    configuration in `~/.config/nvim-kickstart` and create an alias:
-    ```
-    alias nvim-kickstart='NVIM_APPNAME="nvim-kickstart" nvim'
-    ```
-    When you run Neovim using `nvim-kickstart` alias it will use the alternative
-    config directory and the matching local directory
-    `~/.local/share/nvim-kickstart`. You can apply this approach to any Neovim
-    distribution that you would like to try out.
-* What if I want to "uninstall" this configuration:
-  * See [lazy.nvim uninstall](https://lazy.folke.io/usage#-uninstalling) information
-* Why is the kickstart `init.lua` a single file? Wouldn't it make sense to split it into multiple files?
-  * The main purpose of kickstart is to serve as a teaching tool and a reference
-    configuration that someone can easily use to `git clone` as a basis for their own.
-    As you progress in learning Neovim and Lua, you might consider splitting `init.lua`
-    into smaller parts. A fork of kickstart that does this while maintaining the
-    same functionality is available here:
-    * [kickstart-modular.nvim](https://github.com/dam9000/kickstart-modular.nvim)
-  * Discussions on this topic can be found here:
-    * [Restructure the configuration](https://github.com/nvim-lua/kickstart.nvim/issues/218)
-    * [Reorganize init.lua into a multi-file setup](https://github.com/nvim-lua/kickstart.nvim/pull/473)
-
-### Install Recipes
-
-Below you can find OS specific install instructions for Neovim and dependencies.
-
-After installing all the dependencies continue with the [Install Kickstart](#Install-Kickstart) step.
-
-#### Windows Installation
-
-<details><summary>Windows with Microsoft C++ Build Tools and CMake</summary>
-Installation may require installing build tools and updating the run command for `telescope-fzf-native`
-
-See `telescope-fzf-native` documentation for [more details](https://github.com/nvim-telescope/telescope-fzf-native.nvim#installation)
-
-This requires:
-
-- Install CMake and the Microsoft C++ Build Tools on Windows
-
-```lua
-{'nvim-telescope/telescope-fzf-native.nvim', build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build' }
-```
 </details>
-<details><summary>Windows with gcc/make using chocolatey</summary>
-Alternatively, one can install gcc and make which don't require changing the config,
-the easiest way is to use choco:
 
-1. install [chocolatey](https://chocolatey.org/install)
-either follow the instructions on the page or use winget,
-run in cmd as **admin**:
-```
-winget install --accept-source-agreements chocolatey.chocolatey
-```
+<details><summary><b>Linux / macOS</b></summary>
 
-2. install all requirements using choco, exit the previous cmd and
-open a new one so that choco path is set, and run in cmd as **admin**:
-```
-choco install -y neovim git ripgrep wget fd unzip gzip mingw make
-```
-</details>
-<details><summary>WSL (Windows Subsystem for Linux)</summary>
+```sh
+# back up an existing config if you have one
+mv ~/.config/nvim ~/.config/nvim.bak 2>/dev/null || true
 
-```
-wsl --install
-wsl
-sudo add-apt-repository ppa:neovim-ppa/unstable -y
-sudo apt update
-sudo apt install make gcc ripgrep unzip git xclip neovim
+git clone https://github.com/andre-f-paggi/nvim "${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+nvim
 ```
 </details>
 
-#### Linux Install
-<details><summary>Ubuntu Install Steps</summary>
+> Want to try it without touching your existing setup? Clone it elsewhere and run
+> `NVIM_APPNAME=nvim-test nvim`, or on Windows
+> `$env:NVIM_APPNAME='nvim-test'; nvim` after cloning into `%LOCALAPPDATA%\nvim-test`.
+
+---
+
+## Running it
+
+The first `nvim` launch bootstraps lazy.nvim and installs every plugin — let it
+finish, then restart. Day-to-day commands:
+
+| Command | What it does |
+|---|---|
+| `:Lazy` | plugin manager UI (install / update / sync / profile) |
+| `:Mason` | install/manage LSP servers, formatters, debug adapters |
+| `:checkhealth` | diagnose missing dependencies (compiler, fzf, clipboard, …) |
+| `:TSUpdate` | update/install Treesitter parsers (needs `zig`/a C compiler) |
+| `:Tutor` | the built-in Vim tutor, if you're new |
+
+**C#/.NET debugging:** run `:MasonInstall netcoredbg` (or let it auto-install),
+build your project, press `<F5>`, and point it at your `.dll`.
+
+If something looks off after pulling changes, `:Lazy sync` then `:checkhealth`
+clears up most issues (parsers/objects in particular).
+
+---
+
+## Code structure
+
+`init.lua` sets the leader keys and the Nerd-Font flag (these must be set before
+plugins load), then `require`s each module in order. Everything else is split by
+concern:
 
 ```
-sudo add-apt-repository ppa:neovim-ppa/unstable -y
-sudo apt update
-sudo apt install make gcc ripgrep unzip git xclip neovim
+nvim/
+├─ init.lua                  Entry point — leader keys + load order
+├─ lazy-lock.json            Pinned plugin versions (lazy.nvim lockfile)
+│
+├─ lua/config/               Your editor settings (no plugins here)
+│  ├─ options.lua            vim.o options: numbers, clipboard, pwsh shell, listchars, …
+│  ├─ keymaps.lua            Global, plugin-independent keymaps
+│  ├─ autocmds.lua           Autocommands (yank highlight, cursor shape on exit)
+│  ├─ lazy.lua               Bootstraps lazy.nvim and imports custom.plugins
+│  ├─ cheatsheet.lua         Coding-motions floating cheatsheet  (<leader>m / :Cheatsheet)
+│  └─ keymap-cheatsheet.lua  Keybinds/plugins floating cheatsheet (<leader>k / :Keys)
+│
+├─ lua/custom/plugins/       One file per plugin: spec + config + its own keymaps
+│  ├─ init.lua               (empty) drop new plugins here
+│  ├─ fzf-lua.lua            Fuzzy finder — files, grep, LSP pickers, ui-select (the finder)
+│  ├─ lspconfig.lua          LSP via Mason + lspconfig; the gr* keymaps; diagnostics config
+│  ├─ roslyn.lua             C#/.NET language server (Microsoft Roslyn)
+│  ├─ blink-cmp.lua          Completion engine + LuaSnip snippets
+│  ├─ conform.lua            Formatting (format-on-save + <leader>cf; stylua, …)
+│  ├─ treesitter.lua         Syntax / indent / folding (uses zig to build parsers)
+│  ├─ treesitter-context.lua Sticky header showing the enclosing function/class
+│  ├─ mini.lua               mini.ai (text objects) + mini.surround + mini.bufremove
+│  ├─ comment.lua            gc / gcc commenting (Comment.nvim)
+│  ├─ gitsigns.lua           Git gutter signs + hunk stage/reset/preview/blame
+│  ├─ harpoon.lua            Pin a few files and jump to them (<leader>1–4)
+│  ├─ neo-tree.lua           File-explorer sidebar (<leader>e)
+│  ├─ bufferline.lua         VS Code-style buffer tabs along the top
+│  ├─ lualine.lua            Statusline (theme follows the colorscheme)
+│  ├─ trouble.lua            Pretty diagnostics / quickfix / references panel
+│  ├─ todo-comments.lua      Highlight + navigate TODO/FIXME/HACK/NOTE
+│  ├─ debug.lua              nvim-dap + dap-ui, wired for .NET (netcoredbg)
+│  ├─ indent-blankline.lua   Indent guide lines
+│  ├─ guess-indent.lua       Auto-detect tabstop/shiftwidth from the file
+│  ├─ lazydev.lua            Lua LSP types for editing this config
+│  ├─ colorscheme.lua        flexoki-dark theme
+│  ├─ which-key.lua          Leader-menu popup + the group/category definitions
+│  └─ vim-be-good.lua        Motion-practice game (:VimBeGood)
+│
+├─ docs/                     Long-form notes (coding motions, plugin comparisons)
+├─ doc/                      Kickstart's bundled :help docs
+└─ *.css                     flexoki themes for external markdown/highlight tools
 ```
-</details>
-<details><summary>Debian Install Steps</summary>
 
-```
-sudo apt update
-sudo apt install make gcc ripgrep unzip git xclip curl
+**Mental model:** `lua/config/*` is *how the editor behaves*; `lua/custom/plugins/*`
+is *what's installed*. To add a plugin, drop a new `lua/custom/plugins/<name>.lua`
+returning a lazy.nvim spec — `lazy.lua` imports the whole folder automatically, no
+wiring needed.
 
-# Now we install nvim
-curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
-sudo rm -rf /opt/nvim-linux-x86_64
-sudo mkdir -p /opt/nvim-linux-x86_64
-sudo chmod a+rX /opt/nvim-linux-x86_64
-sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
+---
 
-# make it available in /usr/local/bin, distro installs to /usr/bin
-sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/
-```
-</details>
-<details><summary>Fedora Install Steps</summary>
+## Keybindings
 
-```
-sudo dnf install -y gcc make git ripgrep fd-find unzip neovim
-```
-</details>
+`<leader>` is **Space**. Everything under `<leader>` is **lowercase** — no Shift.
+The fastest way to learn the maps is to discover them live:
 
-<details><summary>Arch Install Steps</summary>
+| Key | Shows |
+|---|---|
+| `<leader>` (then wait) | which-key menu of the categories below |
+| `<leader>?` | *every* mapping (which-key full list) |
+| `<leader>k` / `:Keys` | keybinds + plugin-usage cheatsheet (floating) |
+| `<leader>m` / `:Cheatsheet` | coding-motions cheatsheet (text objects, surround, …) |
+| `<leader>sk` | fuzzy-search all keymaps |
 
-```
-sudo pacman -S --noconfirm --needed gcc make git ripgrep fd unzip neovim
-```
-</details>
+### Leader categories
 
+| Prefix | Category | Driven by |
+|---|---|---|
+| `<leader>e` | Explorer (toggle file tree) | neo-tree |
+| `<leader>f` | Find **files** | fzf-lua |
+| `<leader>s` | **Search** content | fzf-lua |
+| `<leader>c` | Code (format, diagnostics) | conform / core |
+| `<leader>g` | Git | gitsigns |
+| `<leader>h` | Harpoon | harpoon |
+| `<leader>b` | Buffer | mini.bufremove |
+| `<leader>t` | Tabline (the tab bar) | bufferline |
+| `<leader>d` | Debug | nvim-dap |
+| `<leader>x` | Trouble / Diagnostics | trouble |
+| `<leader>u` | UI / Toggle | mixed |
+| `gr` | Goto / LSP | nvim-lspconfig |
+
+### Find & Search (fzf-lua)
+
+| Key | Action | | Key | Action |
+|---|---|---|---|---|
+| `<leader>ff` | Files | | `<leader>sg` | Grep (live) |
+| `<leader>fr` | Recent files | | `<leader>sw` | Word under cursor |
+| `<leader>fb` | Buffers | | `<leader>sd` | Diagnostics (buffer) |
+| `<leader>fn` | Neovim config files | | `<leader>sh` | Help tags |
+| `<leader>/` | Search in current buffer | | `<leader>sk` | Keymaps |
+| | | | `<leader>sr` | Resume last picker |
+| | | | `<leader>ss` | Document symbols |
+| | | | `<leader>s/` | Lines in open buffers |
+
+*In a picker:* type to filter, `<Tab>` multi-select, `<C-q>` send results to the
+quickfix list.
+
+### Code & LSP
+
+LSP maps are buffer-local — active once a language server attaches.
+
+| Key | Action | | Key | Action |
+|---|---|---|---|---|
+| `grd` | Go to definition | | `grn` | Rename symbol |
+| `grr` | References | | `gra` | Code action (n/x) |
+| `gri` | Implementation | | `grs` | Document symbols |
+| `grt` | Type definition | | `grw` | Workspace symbols |
+| `grc` | Declaration | | `K` | Hover docs (built-in) |
+| `<leader>cf` | Format buffer (conform) | | `<leader>cd` | Line diagnostics (float) |
+| `<leader>q` | Diagnostics → loclist | | | |
+
+### Git (gitsigns) — in a tracked file
+
+| Key | Action | | Key | Action |
+|---|---|---|---|---|
+| `]c` / `[c` | Next / prev change | | `<leader>gp` | Preview hunk |
+| `<leader>gs` | Stage hunk (or selection) | | `<leader>gb` | Blame line |
+| `<leader>gr` | Reset hunk (or selection) | | `<leader>gd` | Diff against index |
+| `<leader>ga` | Stage whole buffer | | `<leader>gl` | Diff against last commit |
+| `<leader>gx` | Reset buffer (discard) | | | |
+
+### Harpoon
+
+| Key | Action |
+|---|---|
+| `<leader>ha` | Add current file |
+| `<leader>hm` | Toggle quick menu |
+| `<leader>hn` / `<leader>hp` | Next / previous |
+| `<leader>1`–`<leader>4` | Jump to pinned file 1–4 |
+
+### Buffers & Tabline (bufferline)
+
+| Key | Action | | Key | Action |
+|---|---|---|---|---|
+| `]b` / `[b` | Next / prev buffer | | `<leader>tj` | Pick a buffer (jump) |
+| `<A-l>` / `<A-h>` | Next / prev buffer | | `<leader>tp` | Toggle pin |
+| `<A-1>`…`<A-9>` | Jump to buffer N | | `<leader>tx` | Pick a buffer to close |
+| `<leader>t1`…`t9` | Jump to buffer N | | `<leader>to` | Close other buffers |
+| `<leader>t0` | Last buffer | | `<leader>th` / `<leader>tl` | Close left / right |
+| `<leader>bd` | Delete buffer (keep layout) | | `<leader>ts` / `<leader>te` | Sort by dir / ext |
+| `<leader>t[` / `<leader>t]` | Move buffer left / right | | | |
+
+### Debug (nvim-dap)
+
+| Key | Action | | Key | Action |
+|---|---|---|---|---|
+| `<F5>` | Start / continue | | `<leader>db` | Toggle breakpoint |
+| `<F1>` / `<F2>` / `<F3>` | Step into / over / out | | `<leader>dc` | Conditional breakpoint |
+| `<leader>du` | Toggle debugger UI | | `<leader>dr` | Toggle REPL |
+
+### Trouble / Diagnostics
+
+| Key | Action | | Key | Action |
+|---|---|---|---|---|
+| `<leader>xx` | Workspace diagnostics | | `<leader>xl` | Location list |
+| `<leader>xb` | Buffer diagnostics | | `<leader>xq` | Quickfix list |
+| `<leader>xs` | Symbols | | `<leader>xt` | Todo comments |
+| `<leader>xr` | LSP defs / refs | | | |
+
+### UI toggles (`<leader>u`)
+
+| Key | Toggles | | Key | Toggles |
+|---|---|---|---|---|
+| `<leader>ub` | Git blame line | | `<leader>ui` | Indent guides |
+| `<leader>uc` | Treesitter context | | `<leader>ul` | LSP (this buffer) |
+| `<leader>ud` | Git show deleted | | `<leader>uw` | Word wrap |
+| `<leader>uh` | LSP inlay hints | | `<leader>us` | Spell check |
+| `<leader>u`<kbd>Space</kbd> | Show whitespace | | | |
+
+### Editing & motions
+
+| Key | Action |
+|---|---|
+| `<C-s>` | Save (normal **and** insert) |
+| `<A-j>` / `<A-k>` | Move line / selection down / up (re-indents) |
+| `<C-d>` / `<C-u>` | Half-page down / up, kept centred |
+| `n` / `N` | Next / prev search match, centred |
+| `<` / `>` (visual) | Indent and keep the selection |
+| `<leader>p` (visual) | Paste over without clobbering the register |
+| `J` | Join line below, keep cursor put |
+| `gcc` / `gc{motion}` / `gbc` | Toggle line / motion / block comment |
+| `sa{motion}{c}` / `sd{c}` / `sr{old}{new}` | Add / delete / replace surround |
+| `vif`/`vaf`, `vic`/`vac`, `vio`/`vao` | Select inside/around function / class / block |
+
+*Completion (blink.cmp, insert mode):* `<C-y>` accept · `<C-Space>` menu/docs ·
+`<C-n>`/`<C-p>` next/prev · `<C-e>` hide · `<C-k>` signature.
+
+### Windows, splits & navigation pairs
+
+| Key | Action |
+|---|---|
+| `<C-h/j/k/l>` | Move focus between splits |
+| `<Esc>` | Clear search highlight |
+| `<Esc><Esc>` | Exit terminal mode (in `:terminal`) |
+| `]c` / `[c` | Next / prev git change |
+| `]t` / `[t` | Next / prev todo comment |
+| `]d` / `[d` | Next / prev diagnostic |
+| `]m` / `[m` | Next / prev method (start) |
+
+*neo-tree* (inside the tree): `a` add · `d` delete · `r` rename · `c` copy ·
+`x` cut · `p` paste · `<leader>e` close.
+
+---
+
+## Customizing
+
+- **Add a plugin** — create `lua/custom/plugins/<name>.lua` returning a lazy.nvim
+  spec; keep its keymaps in the same file. It's picked up automatically.
+- **Add an LSP server** — add it to the `servers` table in
+  `lua/custom/plugins/lspconfig.lua`; Mason installs it on next start.
+- **Add a formatter** — extend `formatters_by_ft` in
+  `lua/custom/plugins/conform.lua`.
+- **Change a global setting / keymap** — edit `lua/config/options.lua` or
+  `lua/config/keymaps.lua`.
+- **Leader-menu categories** live once in `lua/custom/plugins/which-key.lua`.

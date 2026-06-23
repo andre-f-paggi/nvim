@@ -10,7 +10,16 @@ return {
     {
       'L3MON4D3/LuaSnip',
       version = '2.*',
-      build = 'make install_jsregexp',
+      -- `make install_jsregexp` builds an optional native regex module (only
+      -- needed for some LSP snippet transforms). It can't link `lua51` with the
+      -- MinGW toolchain on Windows, so skip it there / when `make` is missing.
+      -- LuaSnip works fine without it.
+      build = (function()
+        if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
+          return
+        end
+        return 'make install_jsregexp'
+      end)(),
     },
     'folke/lazydev.nvim',
   },
