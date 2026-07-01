@@ -78,3 +78,56 @@ vim.keymap.set('n', '<leader>u ', '<cmd>set list!<cr>', { desc = 'Toggle show wh
 -- Float the full diagnostic message(s) for the current line (<leader>c = Code),
 -- for when the inline virtual text is cut off. (<leader>q still fills the loclist.)
 vim.keymap.set('n', '<leader>cd', vim.diagnostic.open_float, { desc = 'Line diagnostics (float)' })
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- Window / split management (<leader>w group + splits), mirroring LazyVim.
+-- ───────────────────────────────────────────────────────────────────────────
+vim.keymap.set('n', '<leader>-', '<cmd>split<cr>', { desc = 'Split window below' })
+vim.keymap.set('n', '<leader>|', '<cmd>vsplit<cr>', { desc = 'Split window right' })
+vim.keymap.set('n', '<leader>wd', '<C-w>c', { desc = 'Delete window' })
+vim.keymap.set('n', '<leader>wo', '<C-w>o', { desc = 'Close other windows' })
+vim.keymap.set('n', '<leader>w=', '<C-w>=', { desc = 'Equalize window sizes' })
+
+-- Resize the current window with Ctrl+<arrows>.
+vim.keymap.set('n', '<C-Up>', '<cmd>resize +2<cr>', { desc = 'Increase window height' })
+vim.keymap.set('n', '<C-Down>', '<cmd>resize -2<cr>', { desc = 'Decrease window height' })
+vim.keymap.set('n', '<C-Left>', '<cmd>vertical resize -2<cr>', { desc = 'Decrease window width' })
+vim.keymap.set('n', '<C-Right>', '<cmd>vertical resize +2<cr>', { desc = 'Increase window width' })
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- Floating terminal toggle on <C-/> (many terminals send <C-_> for that chord).
+-- ───────────────────────────────────────────────────────────────────────────
+local float_term = {}
+local function toggle_float_term()
+  -- Already open → just hide it.
+  if float_term.win and vim.api.nvim_win_is_valid(float_term.win) then
+    vim.api.nvim_win_hide(float_term.win)
+    float_term.win = nil
+    return
+  end
+
+  if not (float_term.buf and vim.api.nvim_buf_is_valid(float_term.buf)) then
+    float_term.buf = vim.api.nvim_create_buf(false, true)
+  end
+
+  local width = math.floor(vim.o.columns * 0.8)
+  local height = math.floor(vim.o.lines * 0.8)
+  float_term.win = vim.api.nvim_open_win(float_term.buf, true, {
+    relative = 'editor',
+    width = width,
+    height = height,
+    row = math.floor((vim.o.lines - height) / 2),
+    col = math.floor((vim.o.columns - width) / 2),
+    style = 'minimal',
+    border = 'rounded',
+  })
+
+  -- Spawn the shell only the first time; reuse the same job on later toggles.
+  if vim.bo[float_term.buf].buftype ~= 'terminal' then
+    vim.fn.jobstart(vim.o.shell, { term = true })
+  end
+  vim.cmd 'startinsert'
+end
+
+vim.keymap.set({ 'n', 't' }, '<C-/>', toggle_float_term, { desc = 'Toggle floating terminal' })
+vim.keymap.set({ 'n', 't' }, '<C-_>', toggle_float_term, { desc = 'Toggle floating terminal' })

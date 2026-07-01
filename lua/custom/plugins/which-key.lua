@@ -63,6 +63,7 @@ return {
       { '<leader>d', group = 'Debug' },
       { '<leader>x', group = 'Trouble / Diagnostics' },
       { '<leader>u', group = 'UI / Toggle' },
+      { '<leader>w', group = 'Window' },
       -- Buffer-local LSP actions (active when a language server attaches).
       { 'gr', group = 'Goto / LSP', mode = { 'n', 'x' } },
     },

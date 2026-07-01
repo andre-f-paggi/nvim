@@ -5,7 +5,7 @@
 local keys = {
   -- General buffer (kept under <leader>b). mini.bufremove keeps the window
   -- (and Neovim) open instead of closing it when this is the last buffer.
-  { '<leader>bd', function() require('mini.bufremove').delete(0, false) end, desc = 'Delete buffer (keep layout)' },
+  { '<leader>bw', function() require('mini.bufremove').delete(0, false) end, desc = 'Close buffer (keep layout)' },
 
   -- Cycle prev/next (no leader — ergonomic)
   { '[b', '<cmd>BufferLineCyclePrev<cr>', desc = 'Previous buffer' },
@@ -25,6 +25,7 @@ local keys = {
   { '<leader>tp', '<cmd>BufferLineTogglePin<cr>', desc = 'Toggle pin' },
 
   -- Tabline menu — close
+  { '<leader>tw', function() require('mini.bufremove').delete(0, false) end, desc = 'Close current buffer (keep layout)' },
   { '<leader>tx', '<cmd>BufferLinePickClose<cr>', desc = 'Pick buffer to close' },
   { '<leader>to', '<cmd>BufferLineCloseOthers<cr>', desc = 'Close other buffers' },
   { '<leader>th', '<cmd>BufferLineCloseLeft<cr>', desc = 'Close buffers to the left' },

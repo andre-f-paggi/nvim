@@ -31,9 +31,10 @@ return {
     { '<leader>sr', '<cmd>FzfLua resume<cr>', desc = 'Search: resume last picker' },
     { '<leader>ss', '<cmd>FzfLua lsp_document_symbols<cr>', desc = 'Search: document symbols' },
     { '<leader>s/', '<cmd>FzfLua lines<cr>', desc = 'Search: lines in open buffers' },
+    { '<leader>sb', '<cmd>FzfLua lgrep_curbuf<cr>', desc = 'Search: current buffer' },
 
-    -- Fuzzy-search the lines of the current buffer.
-    { '<leader>/', '<cmd>FzfLua lgrep_curbuf<cr>', desc = 'Search in current buffer' },
+    -- <leader>/ is the most-reachable key — spend it on project-wide grep (LazyVim convention).
+    { '<leader>/', '<cmd>FzfLua live_grep<cr>', desc = 'Search: grep (live)' },
   },
   opts = {},
   config = function(_, opts)
