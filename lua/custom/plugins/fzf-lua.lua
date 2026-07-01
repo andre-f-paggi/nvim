@@ -23,7 +23,8 @@ return {
     },
 
     -- Search (content)
-    { '<leader>sg', '<cmd>FzfLua live_grep<cr>', desc = 'Search: grep (live)' },
+    { '<leader>sg', '<cmd>FzfLua live_grep<cr>', desc = 'Search: grep (live regex)' },
+    { '<leader>sf', '<cmd>FzfLua grep_project<cr>', desc = 'Search: fuzzy in files' },
     { '<leader>sw', '<cmd>FzfLua grep_cword<cr>', desc = 'Search: word under cursor' },
     { '<leader>sd', '<cmd>FzfLua diagnostics_document<cr>', desc = 'Search: diagnostics (buffer)' },
     { '<leader>sh', '<cmd>FzfLua helptags<cr>', desc = 'Search: help tags' },
