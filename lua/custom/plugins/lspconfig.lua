@@ -206,6 +206,22 @@ return {
           },
         },
       },
+
+      -- TypeScript / JavaScript (also JSX/TSX). Mason installs
+      -- `typescript-language-server`. Gives completion, go-to-def, rename,
+      -- type errors, etc. Formatting is left to prettier via conform.nvim.
+      ts_ls = {},
+
+      -- ESLint as a language server: surfaces lint errors inline and offers
+      -- `gra` (code action) auto-fixes. Only attaches when the project has an
+      -- eslint config. Mason installs `eslint-lsp`.
+      eslint = {},
+
+      -- PowerShell (.ps1/.psm1). Mason installs `powershell-editor-services`.
+      -- First start is slow while it spins up the PSES host.
+      powershell_es = {
+        bundle_path = vim.fn.stdpath 'data' .. '/mason/packages/powershell-editor-services',
+      },
     }
 
     -- Ensure the servers and tools above are installed
@@ -215,6 +231,7 @@ return {
     local ensure_installed = vim.tbl_keys(servers or {})
     vim.list_extend(ensure_installed, {
       'stylua', -- Used to format Lua code
+      'prettierd', -- Formats JS/TS/JSON/CSS/HTML/YAML/Markdown (via conform.nvim)
     })
     require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
