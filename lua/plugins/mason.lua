@@ -27,7 +27,11 @@ require('mason-tool-installer').setup {
     'basedpyright', -- basedpyright (Python)
     'ruby-lsp', -- ruby_lsp
     'gopls', -- gopls (Go)
-    'roslyn', -- C# (from the Crashdummyy registry, used by roslyn.nvim)
+    -- C# server for roslyn.nvim (Crashdummyy registry). Must be
+    -- `roslyn-language-server` — roslyn.nvim looks for the
+    -- `roslyn-language-server(.cmd)` shim in Mason's bin; the `roslyn`
+    -- package installs a differently-named binary it can't find.
+    'roslyn-language-server',
 
     -- Formatters (conform.nvim)
     'stylua',
