@@ -274,7 +274,7 @@ LSP maps are buffer-local — active once a language server attaches.
 | `<A-1>`…`<A-9>` | Jump to buffer N | | `<leader>tx` | Pick a buffer to close |
 | `<leader>t1`…`t9` | Jump to buffer N | | `<leader>to` | Close other buffers |
 | `<leader>t0` | Last buffer | | `<leader>th` / `<leader>tl` | Close left / right |
-| `<leader>bd` | Delete buffer (keep layout) | | `<leader>ts` / `<leader>te` | Sort by dir / ext |
+| `<leader>bw` | Close buffer (keep layout) | | `<leader>ts` / `<leader>te` | Sort by dir / ext |
 | `<leader>t[` / `<leader>t]` | Move buffer left / right | | | |
 
 ### Debug (nvim-dap)
