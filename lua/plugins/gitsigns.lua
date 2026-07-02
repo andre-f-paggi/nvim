@@ -49,6 +49,7 @@ require('gitsigns').setup {
     map('n', '<leader>gx', gitsigns.reset_buffer, { desc = 'git reset buffer (discard)' })
     map('n', '<leader>gp', gitsigns.preview_hunk, { desc = 'git [p]review hunk' })
     map('n', '<leader>gb', gitsigns.blame_line, { desc = 'git [b]lame line' })
+    map('n', '<leader>gB', gitsigns.blame, { desc = 'git [B]lame whole file (split)' })
     map('n', '<leader>gd', gitsigns.diffthis, { desc = 'git [d]iff against index' })
     map('n', '<leader>gl', function()
       gitsigns.diffthis '@'
