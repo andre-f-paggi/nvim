@@ -71,11 +71,15 @@ if level >= 3 then
     { file = 'sample.yaml', server = 'yamlls' },
     { file = 'sample.md', server = 'marksman' },
     { file = 'sample.py', server = 'basedpyright' },
-    { file = 'sample.rb', server = 'ruby_lsp', timeout = 60000 },
     { file = 'rust/src/main.rs', server = 'rust_analyzer', timeout = 60000 },
     { file = 'go/main.go', server = 'gopls', timeout = 60000 },
-    -- PSES and Roslyn are heavyweight; Roslyn also needs solution/project
-    -- discovery, so treat both as best-effort rather than hard failures.
+    -- Best-effort servers: heavyweight and/or sensitive to the host environment,
+    -- so a missing attach is a skip, not a CI failure.
+    --   ruby_lsp: the gem installs, but the server needs a matching Ruby/workspace
+    --             setup that a bare runner lacks (it quits with exit 1 there).
+    --   powershell_es / roslyn: slow to start; Roslyn also needs solution/project
+    --             discovery before it attaches.
+    { file = 'sample.rb', server = 'ruby_lsp', timeout = 60000, optional = true },
     { file = 'sample.ps1', server = 'powershell_es', timeout = 120000, optional = true },
     { file = 'cs/Program.cs', server = 'roslyn', timeout = 120000, optional = true },
   }
