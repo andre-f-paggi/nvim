@@ -1,10 +1,14 @@
 # nvim
 
+[![verify](https://github.com/andre-f-paggi/nvim/actions/workflows/verify.yml/badge.svg)](https://github.com/andre-f-paggi/nvim/actions/workflows/verify.yml)
+
 My personal Neovim configuration. It started as a fork of
 [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim) and has since been
 split into focused modules, retargeted at a **Windows-first, C#/.NET** workflow,
-and switched to [fzf-lua](https://github.com/ibhagwan/fzf-lua) as the single
-fuzzy finder.
+switched to [fzf-lua](https://github.com/ibhagwan/fzf-lua) as the single fuzzy
+finder, and migrated to Neovim 0.12's native stack: **vim.pack** for plugins and
+**vim.lsp.config/enable** for servers — no plugin manager. Completion is
+**mini.completion** (LSP + fallback, from mini.nvim).
 
 > It lives standalone in this repo and is also vendored as the `nvim` submodule
 > of my [dotfiles](https://github.com/andre-f-paggi/dotfiles).
@@ -12,12 +16,19 @@ fuzzy finder.
 ## Highlights
 
 - **Modular** — `init.lua` only sets the leader keys, then loads small files
-  under `lua/config/` (settings) and `lua/custom/plugins/` (one file per plugin).
-- **[lazy.nvim](https://lazy.folke.io/)** plugin manager — self-bootstrapping,
-  versions pinned in `lazy-lock.json`.
-- **LSP + completion out of the box** — `nvim-lspconfig` + Mason, `blink.cmp`
-  completion, `conform.nvim` formatting, with first-class **C#/.NET** support
-  (`roslyn.nvim` + `netcoredbg` debugging).
+  under `lua/config/` (settings) and `lua/plugins/` (one file per plugin).
+- **Native `vim.pack`** plugin management (Neovim 0.12+) — one manifest in
+  `lua/config/pack.lua`, no plugin-manager plugin.
+- **Native LSP + mini.completion** — `vim.lsp.enable()` with nvim-lspconfig's
+  server configs, `mini.completion` autocompletion, Mason as a pure binary
+  installer, `conform.nvim` formatting, with first-class **C#/.NET** support
+  (`roslyn.nvim` + `netcoredbg` debugging). 12 languages preconfigured: Lua,
+  TS/JS, C#, PowerShell, Bash, JSON, YAML, Markdown, Rust, Python, Ruby, Go.
+- **Auto-everything** — Treesitter parsers auto-install on first open of a new
+  filetype (and highlight immediately); Mason auto-installs every server/tool
+  from one list; LSP + completion attach on their own.
+- **Self-testing** — `tests/verify.lua` checks clean startup, health, and
+  per-language LSP attach; runs in CI on every push (badge above).
 - **fzf-lua** for files / live-grep / LSP pickers (no Telescope).
 - **Discoverable keymaps** — which-key popups plus two built-in floating
   cheatsheets (`<leader>k` and `<leader>m`).
@@ -32,10 +43,11 @@ fuzzy finder.
 
 | Need | Why | Install (Windows) |
 |---|---|---|
-| **Neovim** (latest stable) | the editor | `winget install Neovim.Neovim` |
-| **git** | lazy.nvim + plugin clones | `winget install Git.Git` |
+| **Neovim 0.12+** | the editor (`vim.pack` needs 0.12) | `winget install Neovim.Neovim` |
+| **git** | vim.pack plugin clones | `winget install Git.Git` |
 | **PowerShell 7** (`pwsh`) | `:terminal` and `:!` are wired to `pwsh.exe` | `winget install Microsoft.PowerShell` |
 | **zig** | C compiler used to build Treesitter parsers | `winget install zig.zig` |
+| **tree-sitter CLI** | builds parsers on the TS `main` branch (auto-installed via Mason) | `npm i -g tree-sitter-cli` |
 | **ripgrep** | fzf-lua live grep | `winget install BurntSushi.ripgrep.MSVC` |
 | **fzf** binary | the fzf-lua picker engine | `winget install junegunn.fzf` |
 | **A Nerd Font** | icons (`vim.g.have_nerd_font = true`) | [nerdfonts.com](https://www.nerdfonts.com/) |
@@ -91,22 +103,29 @@ nvim
 
 ## Running it
 
-The first `nvim` launch bootstraps lazy.nvim and installs every plugin — let it
-finish, then restart. Day-to-day commands:
+The first `nvim` launch clones every plugin via `vim.pack` and Mason installs
+the LSP servers/formatters/debug adapters — let it finish, then restart.
+Day-to-day commands:
 
 | Command | What it does |
 |---|---|
-| `:Lazy` | plugin manager UI (install / update / sync / profile) |
+| `:lua vim.pack.update()` | update plugins (review the diff, then apply) |
 | `:Mason` | install/manage LSP servers, formatters, debug adapters |
+| `:MasonToolsInstallSync` | install everything from the ensure-installed list |
 | `:checkhealth` | diagnose missing dependencies (compiler, fzf, clipboard, …) |
-| `:TSUpdate` | update/install Treesitter parsers (needs `zig`/a C compiler) |
+| `:TSUpdate` | update/install Treesitter parsers (needs a C compiler / `zig`) |
 | `:Tutor` | the built-in Vim tutor, if you're new |
 
-**C#/.NET debugging:** run `:MasonInstall netcoredbg` (or let it auto-install),
+**C#/.NET debugging:** `netcoredbg` is on the Mason ensure-installed list —
 build your project, press `<F5>`, and point it at your `.dll`.
 
-If something looks off after pulling changes, `:Lazy sync` then `:checkhealth`
-clears up most issues (parsers/objects in particular).
+If something looks off after pulling changes, `:lua vim.pack.update()` then
+`:checkhealth` clears up most issues. To verify the whole config end-to-end
+(same checks CI runs):
+
+```sh
+nvim --headless "+luafile tests/verify.lua"     # VERIFY_LEVEL=1|2|3 (default 3)
+```
 
 ---
 
@@ -119,26 +138,24 @@ concern:
 ```
 nvim/
 ├─ init.lua                  Entry point — leader keys + load order
-├─ lazy-lock.json            Pinned plugin versions (lazy.nvim lockfile)
 │
 ├─ lua/config/               Your editor settings (no plugins here)
 │  ├─ options.lua            vim.o options: numbers, clipboard, pwsh shell, listchars, …
 │  ├─ keymaps.lua            Global, plugin-independent keymaps
 │  ├─ autocmds.lua           Autocommands (yank highlight, cursor shape on exit)
-│  ├─ lazy.lua               Bootstraps lazy.nvim and imports custom.plugins
+│  ├─ pack.lua               Plugin manifest (vim.pack.add) + loads lua/plugins/*
+│  ├─ lsp.lua                vim.lsp.config/enable; capabilities; gr* keymaps; diagnostics
 │  ├─ cheatsheet.lua         Coding-motions floating cheatsheet  (<leader>m / :Cheatsheet)
 │  └─ keymap-cheatsheet.lua  Keybinds/plugins floating cheatsheet (<leader>k / :Keys)
 │
-├─ lua/custom/plugins/       One file per plugin: spec + config + its own keymaps
-│  ├─ init.lua               (empty) drop new plugins here
+├─ lua/plugins/              One file per plugin: setup() + its own keymaps
 │  ├─ fzf-lua.lua            Fuzzy finder — files, grep, LSP pickers, ui-select (the finder)
-│  ├─ lspconfig.lua          LSP via Mason + lspconfig; the gr* keymaps; diagnostics config
+│  ├─ mason.lua              Binary installer ONLY (servers/formatters/adapters list)
 │  ├─ roslyn.lua             C#/.NET language server (Microsoft Roslyn)
-│  ├─ blink-cmp.lua          Completion engine + LuaSnip snippets
 │  ├─ conform.lua            Formatting (format-on-save + <leader>cf; stylua, …)
-│  ├─ treesitter.lua         Syntax / indent / folding (uses zig to build parsers)
+│  ├─ treesitter.lua         Syntax / indent ('main' branch API; parser list)
 │  ├─ treesitter-context.lua Sticky header showing the enclosing function/class
-│  ├─ mini.lua               mini.ai (text objects) + mini.surround + mini.bufremove
+│  ├─ mini.lua               mini.ai + mini.surround + mini.bufremove + mini.completion
 │  ├─ comment.lua            gc / gcc commenting (Comment.nvim)
 │  ├─ gitsigns.lua           Git gutter signs + hunk stage/reset/preview/blame
 │  ├─ harpoon.lua            Pin a few files and jump to them (<leader>1–4)
@@ -147,23 +164,25 @@ nvim/
 │  ├─ lualine.lua            Statusline (theme follows the colorscheme)
 │  ├─ trouble.lua            Pretty diagnostics / quickfix / references panel
 │  ├─ todo-comments.lua      Highlight + navigate TODO/FIXME/HACK/NOTE
-│  ├─ debug.lua              nvim-dap + dap-ui, wired for .NET (netcoredbg)
+│  ├─ dap.lua                nvim-dap + dap-ui, wired for .NET (netcoredbg)
+│  ├─ fidget.lua             LSP progress messages (bottom-right)
 │  ├─ indent-blankline.lua   Indent guide lines
 │  ├─ guess-indent.lua       Auto-detect tabstop/shiftwidth from the file
 │  ├─ lazydev.lua            Lua LSP types for editing this config
 │  ├─ colorscheme.lua        flexoki-dark theme
-│  ├─ which-key.lua          Leader-menu popup + the group/category definitions
-│  └─ vim-be-good.lua        Motion-practice game (:VimBeGood)
+│  └─ which-key.lua          Leader-menu popup + the group/category definitions
 │
+├─ tests/                    Headless verification (verify.lua + per-language fixtures)
+├─ .github/workflows/        CI: stylua + the verify script on every push
 ├─ docs/                     Long-form notes (coding motions, plugin comparisons)
 ├─ doc/                      Kickstart's bundled :help docs
 └─ *.css                     flexoki themes for external markdown/highlight tools
 ```
 
-**Mental model:** `lua/config/*` is *how the editor behaves*; `lua/custom/plugins/*`
-is *what's installed*. To add a plugin, drop a new `lua/custom/plugins/<name>.lua`
-returning a lazy.nvim spec — `lazy.lua` imports the whole folder automatically, no
-wiring needed.
+**Mental model:** `lua/config/*` is *how the editor behaves*; `lua/plugins/*`
+is *what's installed*. To add a plugin, add its URL to `lua/config/pack.lua`,
+drop a `lua/plugins/<name>.lua` with its `setup()` + keymaps, and add the module
+name to the list at the bottom of `pack.lua`.
 
 ---
 
@@ -195,7 +214,7 @@ The fastest way to learn the maps is to discover them live:
 | `<leader>d` | Debug | nvim-dap |
 | `<leader>x` | Trouble / Diagnostics | trouble |
 | `<leader>u` | UI / Toggle | mixed |
-| `gr` | Goto / LSP | nvim-lspconfig |
+| `gr` | Goto / LSP | native LSP (fzf-lua pickers) |
 
 ### Find & Search (fzf-lua)
 
@@ -295,13 +314,17 @@ LSP maps are buffer-local — active once a language server attaches.
 | `n` / `N` | Next / prev search match, centred |
 | `<` / `>` (visual) | Indent and keep the selection |
 | `<leader>p` (visual) | Paste over without clobbering the register |
+| `d` / `D` / `x` | Delete WITHOUT yanking (black-hole register) |
+| `<leader>dd` | Cut — the old delete-into-register behaviour |
+| `<leader>sx` | Replace word under cursor across the file |
 | `J` | Join line below, keep cursor put |
 | `gcc` / `gc{motion}` / `gbc` | Toggle line / motion / block comment |
 | `sa{motion}{c}` / `sd{c}` / `sr{old}{new}` | Add / delete / replace surround |
 | `vif`/`vaf`, `vic`/`vac`, `vio`/`vao` | Select inside/around function / class / block |
 
-*Completion (blink.cmp, insert mode):* `<C-y>` accept · `<C-Space>` menu/docs ·
-`<C-n>`/`<C-p>` next/prev · `<C-e>` hide · `<C-k>` signature.
+*Completion (mini.completion, insert mode):* auto-triggers as you type ·
+`<C-Space>` force-trigger · `<C-n>`/`<C-p>` next/prev · `<C-y>` accept ·
+`<C-e>` cancel. Docs + signature-help windows pop up automatically.
 
 ### Windows, splits & navigation pairs
 
@@ -322,12 +345,14 @@ LSP maps are buffer-local — active once a language server attaches.
 
 ## Customizing
 
-- **Add a plugin** — create `lua/custom/plugins/<name>.lua` returning a lazy.nvim
-  spec; keep its keymaps in the same file. It's picked up automatically.
-- **Add an LSP server** — add it to the `servers` table in
-  `lua/custom/plugins/lspconfig.lua`; Mason installs it on next start.
+- **Add a plugin** — add its URL to `lua/config/pack.lua`, create
+  `lua/plugins/<name>.lua` with its `setup()` + keymaps, and add the module name
+  to the list at the bottom of `pack.lua`.
+- **Add an LSP server** — add its name to `vim.lsp.enable` in
+  `lua/config/lsp.lua` (overrides via `vim.lsp.config()` above it) and its Mason
+  package to `lua/plugins/mason.lua`; it installs on next start.
 - **Add a formatter** — extend `formatters_by_ft` in
-  `lua/custom/plugins/conform.lua`.
+  `lua/plugins/conform.lua` (+ Mason package in `lua/plugins/mason.lua`).
 - **Change a global setting / keymap** — edit `lua/config/options.lua` or
   `lua/config/keymaps.lua`.
-- **Leader-menu categories** live once in `lua/custom/plugins/which-key.lua`.
+- **Leader-menu categories** live once in `lua/plugins/which-key.lua`.

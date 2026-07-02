@@ -1,0 +1,45 @@
+name: verify
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: stable
+
+      - name: Install system deps
+        run: sudo apt-get update && sudo apt-get install -y ripgrep build-essential
+
+      # nvim-treesitter's 'main' branch builds parsers with the tree-sitter CLI.
+      - name: Install tree-sitter CLI
+        run: npm install -g tree-sitter-cli
+
+      - name: Link repo as the Neovim config
+        run: |
+          mkdir -p ~/.config
+          ln -s "$GITHUB_WORKSPACE" ~/.config/nvim
+
+      # First start clones all plugins via vim.pack and installs treesitter
+      # parsers; its progress output is expected, so this only checks the exit code.
+      - name: Warmup (clone plugins + build parsers)
+        run: nvim --headless "+qall!"
+
+      - name: Provision LSP servers and tools via Mason
+        run: nvim --headless "+MasonToolsInstallSync" "+qall!"
+
+      - name: Run verification (levels 1-3)
+        env:
+          VERIFY_LEVEL: '3'
+        run: nvim --headless "+luafile tests/verify.lua"

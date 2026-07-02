@@ -1,0 +1,5 @@
+name: verify-fixture
+greeting: hello world
+items:
+  - one
+  - two

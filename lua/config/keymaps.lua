@@ -59,6 +59,18 @@ vim.keymap.set('x', '>', '>gv', { desc = 'Indent right (keep selection)' })
 -- one, so the thing you copied is still there to paste again.
 vim.keymap.set('x', '<leader>p', [["_dP]], { desc = 'Paste over (keep register)' })
 
+-- Delete WITHOUT yanking: d/D/x go to the black-hole register, so deleting
+-- never clobbers what you last copied. Yank (y) is the only way to fill the
+-- register; use <leader>d for the old cut-style delete when you want it.
+vim.keymap.set({ 'n', 'x' }, 'd', [["_d]], { desc = 'Delete (no yank)' })
+vim.keymap.set('n', 'D', [["_D]], { desc = 'Delete to end of line (no yank)' })
+vim.keymap.set({ 'n', 'x' }, 'x', [["_x]], { desc = 'Delete char (no yank)' })
+vim.keymap.set({ 'n', 'x' }, '<leader>dd', 'd', { desc = 'Cut (delete into register)' })
+
+-- Search & replace the word under the cursor across the whole file, cursor
+-- pre-placed in the replacement slot. Lives in the <leader>s (Search) group.
+vim.keymap.set('n', '<leader>sx', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = 'Search: replace word under cursor' })
+
 -- Join the line below onto this one but restore the cursor to where it was
 -- (mark z) — the default J leaves the cursor sitting at the join seam.
 vim.keymap.set('n', 'J', 'mzJ`z', { desc = 'Join lines (keep cursor)' })

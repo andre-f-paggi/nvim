@@ -8,3 +8,11 @@ spell/
 # Vim backup / undo cruft
 *~
 *.un~
+
+# vim.pack lockfile — generated per machine, not pinned in the repo
+nvim-pack-lock.json
+
+# Build artifacts from the LSP test fixtures (Roslyn/dotnet, cargo, go)
+tests/fixtures/**/obj/
+tests/fixtures/**/bin/
+tests/fixtures/**/target/
