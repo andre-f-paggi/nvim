@@ -41,8 +41,10 @@ end
 M.lines = {
   ' Coding motions — common selections & edits          (q / <Esc> to close)',
   ' ───────────────────────────────────────────────────────────────────────',
-  ' Operators:  v select   d delete   c change   y yank',
+  ' Operators:  v select   d delete   c change   y yank   x del char',
   ' Combine an operator with a text object below, e.g.  vif   ci(   daf   yi{',
+  ' NOTE: d / D / x delete to the black-hole register (no yank). y is the only',
+  '       fill; use <leader>dd for a classic cut (delete INTO the register).',
   '',
   ' TEXT OBJECTS        i = INSIDE        a = AROUND (includes the delimiters)',
   '   i(  a(            parentheses ( )   — also the args of a call',
