@@ -19,7 +19,19 @@ vim.schedule(function()
 end)
 
 vim.o.breakindent = true -- keep indentation when wrapping long lines
+
+-- Persistent undo/backup/swap, centralized under stdpath('state') instead of the default
+-- fallback — if that target dir is ever missing, Neovim silently drops "<file>.un~"/"<file>~"
+-- right next to whatever's being edited (that's how stray files ended up in deploy/ dirs).
+-- mkdir -p guarantees these exist before undofile/backup ever get a chance to fall back.
 vim.o.undofile = true -- persistent undo history across sessions
+local state_dir = vim.fn.stdpath 'state'
+for _, sub in ipairs { 'undo', 'backup', 'swap' } do
+  vim.fn.mkdir(state_dir .. '/' .. sub, 'p')
+end
+vim.o.undodir = state_dir .. '/undo//'
+vim.o.backupdir = state_dir .. '/backup//'
+vim.o.directory = state_dir .. '/swap//'
 
 -- Case-insensitive search unless the query has capitals or \C.
 vim.o.ignorecase = true
